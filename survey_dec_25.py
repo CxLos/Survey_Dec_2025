@@ -12,7 +12,7 @@ from dash import dcc, html, dash_table
 import json
 import base64
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 
 # 'data/~$bmhc_data_2024_cleaned.xlsx'
 # print('System Version:', sys.version)
@@ -46,11 +46,11 @@ encoded_key = os.getenv("GOOGLE_CREDENTIALS")
 
 if encoded_key:
     json_key = json.loads(base64.b64decode(encoded_key).decode("utf-8"))
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(json_key, scope)
+    creds = Credentials.from_service_account_info(json_key, scopes=scope)
 else:
     creds_path = r"C:\Users\CxLos\OneDrive\Documents\BMHC\Data\bmhc-timesheet-4808d1347240.json"
     if os.path.exists(creds_path):
-        creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, scope)
+        creds = Credentials.from_service_account_file(creds_path, scopes=scope)
     else:
         raise FileNotFoundError("Service account JSON file not found and GOOGLE_CREDENTIALS is not set.")
     
@@ -278,8 +278,6 @@ capture_rate_gauge = go.Figure(go.Indicator(
     font=dict(size=14),
     margin=dict(l=20, r=20, t=50, b=20)
 )
-
-
 
 # =========================== Ratings Analysis ============================ #
 
@@ -2296,7 +2294,7 @@ html.Div(
             dash_table.DataTable(
                 id='applications-table',
                 data=data,
-                columns=columns,
+                columns=columns,  # type: ignore
                 page_size=14,
                 sort_action='native',
                 filter_action='native',
@@ -2321,7 +2319,7 @@ html.Div(
                     'whiteSpace': 'normal',
                     'height': 'auto',
                 },
-                style_cell_conditional=[
+                style_cell_conditional=[  # type: ignore
                     # make the index column narrow and centered
                     {'if': {'column_id': '#'},
                     'width': '20px', 'minWidth': '60px', 'maxWidth': '60px', 'textAlign': 'center'},
